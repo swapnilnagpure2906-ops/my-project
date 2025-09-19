@@ -1,0 +1,16 @@
+{
+  "name": "Flip Digital Visiting Card",
+  "short_name": "Flip Card",
+  "start_url": "/visiting-cards/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#fe8300",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+name: Update Cards JSON
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cards/**'
+
+jobs:
+  generate-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Generate cards.json
+        run: |
+          echo "[]" > cards.json
+          cards=()
+          for file in cards/*.html; do
+            filename=$(basename "$file")
+            name="${filename%.*}"
+            card_json=$(jq -n \
+              --arg name "$name" \
+              --arg file "cards/$filename" \
+              --arg image "images/logo.png" \
+              '{name: $name, cardFile: $file, image: $image}')
+            cards+=("$card_json")
+          done
+          jq -s '.' <<<"${cards[@]}" > cards.json
+
+      - name: Commit and push cards.json
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add cards.json
+          git commit -m "Auto-update cards.json [skip ci]" || echo "No changes to commit"
+          git push
