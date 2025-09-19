@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch:   # 👈 ab tu Actions tab se manually bhi run kar sakta hai
 
 jobs:
   build:
@@ -15,17 +15,30 @@ jobs:
 
       - name: Generate cards.json
         run: |
+          mkdir -p cards
           echo "[" > cards/cards.json
           
-          # Add all HTML card files (basename only)
+          first=true
           for f in cards/*.html; do
             [ -f "$f" ] || continue
-            fname=$(basename "$f")
-            echo "  { \"file\": \"$fname\" }," >> cards/cards.json
+            if [ "$first" = true ]; then
+              first=false
+            else
+              echo "," >> cards/cards.json
+            fi
+            echo "  { \"type\": \"card\", \"file\": \"$f\" }" >> cards/cards.json
           done
-          
-          # Remove last comma
-          sed -i '$ s/,$//' cards/cards.json
+
+          for img in cards/images/*; do
+            [ -f "$img" ] || continue
+            if [ "$first" = true ]; then
+              first=false
+            else
+              echo "," >> cards/cards.json
+            fi
+            echo "  { \"type\": \"image\", \"file\": \"$img\" }" >> cards/cards.json
+          done
+
           echo "]" >> cards/cards.json
 
       - name: Commit changes
