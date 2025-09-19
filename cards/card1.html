@@ -4,13 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flip Digital Visiting Card</title>
-<base href="/">
 
 <!-- PWA / Home Screen Support -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Flip Card">
 <meta name="theme-color" content="#fe8300">
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="../manifest.json">
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -69,7 +68,7 @@ body {
 
 /* Front Design */
 .logo-section { text-align:center; margin-bottom:15px; background:#f0f4f8; padding:10px; border-radius:12px; }
-.logo-section img { width: 200px; height: 60px; }
+.logo-section img { width:80%; height:auto; }
 
 .profile-section {
   text-align:center;
@@ -180,7 +179,7 @@ body {
     <div class="card-face front">
       <div class="content">
         <div class="logo-section">
-          <img src="/images/logo.png" alt="Company Logo">
+          <img src="images/logo1.png" alt="Company Logo">
         </div>
 
         <div class="profile-section">
@@ -303,7 +302,7 @@ END:VCARD`;
 }
 
 function shareCard(){
-  const cardURL = window.location.href;
+  const cardURL = 'https://swapnilcard.netlify.app';
   if(navigator.share){
     navigator.share({title: data.name, url: cardURL})
     .catch(()=>{ navigator.clipboard.writeText(cardURL); alert("Card link copied. Paste to share."); });
@@ -322,10 +321,10 @@ cardEl.addEventListener('touchend', e=>{
   if(touchendX > touchstartX + 50) flipCard();
 }, false);
 
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/service-worker.js')
-  .then(()=>console.log("Service Worker Registered"))
-  .catch(err=>console.log("SW registration failed:", err));
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('../service-worker.js')
+    .then(() => console.log("Service Worker Registered"))
+    .catch(err => console.log("SW registration failed:", err));
 }
 </script>
 

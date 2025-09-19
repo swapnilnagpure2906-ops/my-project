@@ -1,50 +1,70 @@
 const CACHE_NAME = "flip-card-cache-v1";
 
-// URLs to cache
-const totalCards = 200; // total number of cards
-const urlsToCache = [
+// Core files to always cache
+const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./images/profile.jpg",
   "./images/logo.png",
   "./images/icon-192.png",
-  "./images/icon-512.png"
+  "./images/icon-512.png",
+  "./style.css" // अगर अलग stylesheet है
 ];
-
-// Add all card index.html files to cache
-for (let i = 1; i <= totalCards; i++) {
-  urlsToCache.push(`./card${i}/index.html`);
-}
 
 // Install event
 self.addEventListener("install", (event) => {
+  console.log("Service Worker: Installing...");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
+      return cache.addAll(CORE_ASSETS);
     })
   );
+  self.skipWaiting();
 });
 
 // Activate event
 self.addEventListener("activate", (event) => {
+  console.log("Service Worker: Activated");
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
           }
         })
       );
     })
   );
+  self.clients.claim();
 });
 
-// Fetch event
+// Fetch event - dynamic caching
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    caches.match(event.request).then((cachedResp) => {
+      if (cachedResp) return cachedResp;
+
+      // Fetch from network and cache it
+      return fetch(event.request)
+        .then((networkResp) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            // Only cache GET requests
+            if (event.request.method === "GET") {
+              cache.put(event.request, networkResp.clone());
+            }
+            return networkResp;
+          });
+        })
+        .catch(() => {
+          // Offline fallback: optional
+          if (event.request.destination === "image") {
+            return caches.match("./images/logo.png");
+          }
+          return new Response("You are offline", {
+            status: 503,
+            statusText: "Offline",
+          });
+        });
     })
   );
 });

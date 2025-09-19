@@ -4,11 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Visiting Cards</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    h1 { text-align: center; color: #333; }
+    #card-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .card-wrapper { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 10px; width: 250px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .card-wrapper img { max-width: 100%; border-radius: 5px; }
+  </style>
 </head>
 <body>
   <h1>Digital Visiting Cards</h1>
+
+  <!-- Container for all cards -->
   <div id="card-list"></div>
 
-  <script src="script.js"></script>
+  <script>
+    const container = document.getElementById("card-list");
+
+    // Load all cards from cards.json
+    fetch("cards/cards.json")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(card => {
+          const div = document.createElement("div");
+          div.className = "card-wrapper";
+
+          // Load each card HTML
+          fetch("cards/" + card.file)
+            .then(res => res.text())
+            .then(html => {
+              div.innerHTML = html;
+              container.appendChild(div);
+            })
+            .catch(err => console.log("Card load error:", err));
+        });
+      })
+      .catch(err => console.log("No cards found or JSON missing", err));
+  </script>
 </body>
 </html>

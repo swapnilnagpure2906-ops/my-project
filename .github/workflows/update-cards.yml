@@ -4,36 +4,38 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'cards/**'
 
 jobs:
-  generate-json:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Generate cards.json
         run: |
-          echo "[]" > cards.json
-          cards=()
-          for file in cards/*.html; do
-            filename=$(basename "$file")
-            name="${filename%.*}"
-            card_json=$(jq -n \
-              --arg name "$name" \
-              --arg file "cards/$filename" \
-              --arg image "images/logo.png" \
-              '{name: $name, cardFile: $file, image: $image}')
-            cards+=("$card_json")
+          echo "[" > cards/cards.json
+          
+          # Add all HTML card files
+          for f in cards/*.html; do
+            [ -f "$f" ] || continue
+            echo "  { \"type\": \"card\", \"file\": \"$f\" }," >> cards/cards.json
           done
-          jq -s '.' <<<"${cards[@]}" > cards.json
+          
+          # Add all images in cards/images/
+          for img in cards/images/*; do
+            [ -f "$img" ] || continue
+            echo "  { \"type\": \"image\", \"file\": \"$img\" }," >> cards/cards.json
+          done
+          
+          # Remove last comma
+          sed -i '$ s/,$//' cards/cards.json
+          echo "]" >> cards/cards.json
 
-      - name: Commit and push cards.json
+      - name: Commit changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add cards.json
-          git commit -m "Auto-update cards.json [skip ci]" || echo "No changes to commit"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add cards/cards.json
+          git commit -m "Auto-update cards.json" || echo "No changes"
           git push
