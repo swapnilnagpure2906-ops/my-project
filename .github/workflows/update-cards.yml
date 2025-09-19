@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write   # 👈 ye line sabse important hai
+
 jobs:
   build:
     runs-on: ubuntu-latest
