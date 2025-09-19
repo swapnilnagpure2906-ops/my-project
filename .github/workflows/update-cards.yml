@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:   # 👈 ab tu Actions tab se manually bhi run kar sakta hai
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,7 +17,6 @@ jobs:
         run: |
           mkdir -p cards
           echo "[" > cards/cards.json
-          
           first=true
           for f in cards/*.html; do
             [ -f "$f" ] || continue
@@ -26,19 +25,9 @@ jobs:
             else
               echo "," >> cards/cards.json
             fi
-            echo "  { \"type\": \"card\", \"file\": \"$f\" }" >> cards/cards.json
+            filename=$(basename "$f")
+            echo "  { \"type\": \"card\", \"file\": \"$filename\" }" >> cards/cards.json
           done
-
-          for img in cards/images/*; do
-            [ -f "$img" ] || continue
-            if [ "$first" = true ]; then
-              first=false
-            else
-              echo "," >> cards/cards.json
-            fi
-            echo "  { \"type\": \"image\", \"file\": \"$img\" }" >> cards/cards.json
-          done
-
           echo "]" >> cards/cards.json
 
       - name: Commit changes
