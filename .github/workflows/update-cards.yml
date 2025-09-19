@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,16 +17,11 @@ jobs:
         run: |
           echo "[" > cards/cards.json
           
-          # Add all HTML card files
+          # Add all HTML card files (basename only)
           for f in cards/*.html; do
             [ -f "$f" ] || continue
-            echo "  { \"type\": \"card\", \"file\": \"$f\" }," >> cards/cards.json
-          done
-          
-          # Add all images in cards/images/
-          for img in cards/images/*; do
-            [ -f "$img" ] || continue
-            echo "  { \"type\": \"image\", \"file\": \"$img\" }," >> cards/cards.json
+            fname=$(basename "$f")
+            echo "  { \"file\": \"$fname\" }," >> cards/cards.json
           done
           
           # Remove last comma
