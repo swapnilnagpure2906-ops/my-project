@@ -44,8 +44,25 @@
   }
 
   /* TAB VIEW */
-  .tab { overflow-x: auto; white-space: nowrap; border-bottom: 2px solid #ccc; margin: 30px auto 20px auto; max-width: 1200px; }
-  .tab button { display: inline-block; background-color: #f1f1f1; border: none; outline: none; cursor: pointer; padding: 10px 20px; margin-right: 5px; transition: 0.3s; font-size: 16px; border-radius:5px 5px 0 0; }
+  .tab { 
+    overflow-x: auto; 
+    white-space: nowrap; 
+    border-bottom: 2px solid #ccc; 
+    margin: 30px auto 20px auto; 
+    max-width: 1200px; 
+  }
+  .tab button { 
+    display: inline-block; 
+    background-color: #f1f1f1; 
+    border: none; 
+    outline: none; 
+    cursor: pointer; 
+    padding: 10px 20px; 
+    margin-right: 5px; 
+    transition: 0.3s; 
+    font-size: 16px; 
+    border-radius:5px 5px 0 0; 
+  }
   .tab button:hover { background-color: #ddd; }
   .tab button.active { background-color: #ccc; font-weight: bold; }
   .tabcontent { display: none; padding: 20px 0; max-width: 400px; margin: auto; }
@@ -63,19 +80,21 @@
 <div class="tab" id="tabContainer"></div>
 <div id="contentContainer"></div>
 
-<script>
-// ======= AUTO-ENTRY SYSTEM =======
-// window.dynamicCards is auto-populated by your system
-const dynamicCards = window.dynamicCards || []; 
+<!-- Auto-entry script should populate window.dynamicCards -->
+<script src="./cards/cards.json"></script>
+<script src="./script.js"></script>
 
+<script>
 // ======= GRID VIEW =======
 const list = document.getElementById("card-list");
-dynamicCards.forEach(card => {
-  const div = document.createElement("div");
-  div.className = "card-box";
-  div.innerHTML = `<a href="${card.link}" target="_blank">${card.name}</a>`;
-  list.appendChild(div);
-});
+if(window.dynamicCards && window.dynamicCards.length){
+  window.dynamicCards.forEach(card => {
+    const div = document.createElement("div");
+    div.className = "card-box";
+    div.innerHTML = `<a href="${card.link}" target="_blank">${card.name}</a>`;
+    list.appendChild(div);
+  });
+}
 
 // ======= TAB VIEW =======
 const tabContainer = document.getElementById("tabContainer");
@@ -94,26 +113,27 @@ function openCard(evt, cardId) {
 function renderTabs() {
   tabContainer.innerHTML = "";
   contentContainer.innerHTML = "";
-  dynamicCards.forEach((card, index) => {
-    const btn = document.createElement("button");
-    btn.className = "tablinks";
-    btn.textContent = card.name;
-    btn.onclick = (e) => openCard(e, card.name);
-    tabContainer.appendChild(btn);
+  if(window.dynamicCards && window.dynamicCards.length){
+    window.dynamicCards.forEach((card, index) => {
+      const btn = document.createElement("button");
+      btn.className = "tablinks";
+      btn.textContent = card.name;
+      btn.onclick = (e) => openCard(e, card.name);
+      tabContainer.appendChild(btn);
 
-    const div = document.createElement("div");
-    div.id = card.name;
-    div.className = "tabcontent";
-    div.innerHTML = card.content;
-    contentContainer.appendChild(div);
+      const div = document.createElement("div");
+      div.id = card.name;
+      div.className = "tabcontent";
+      div.innerHTML = card.content;
+      contentContainer.appendChild(div);
 
-    if(index === 0) btn.click(); // first tab open by default
-  });
+      if(index === 0) btn.click(); // first tab open by default
+    });
+  }
 }
 
 // Enable tab view
 renderTabs();
-
 </script>
 
 </body>
