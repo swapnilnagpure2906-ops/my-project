@@ -1,37 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Visiting Cards</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { color: #333; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 10px 0; }
-    a { text-decoration: none; color: #007bff; font-weight: bold; }
-    a:hover { text-decoration: underline; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Cards</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; }
+.tab { overflow-x: auto; white-space: nowrap; border-bottom: 2px solid #ccc; margin-bottom: 20px; }
+.tab button { display: inline-block; background-color: #f1f1f1; border: none; outline: none; cursor: pointer; padding: 10px 20px; margin-right: 5px; transition: 0.3s; font-size: 16px; }
+.tab button:hover { background-color: #ddd; }
+.tab button.active { background-color: #ccc; }
+.tabcontent { display: none; padding: 20px 0; }
+.card { border: 1px solid #888; padding: 15px; border-radius: 8px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); max-width: 400px; }
+</style>
 </head>
 <body>
-  <h1>All Visiting Cards</h1>
-  <ul id="cards-list"></ul>
 
-  <script>
-    // Fetch cards.json and generate links
-    fetch('cards/cards.json')
-      .then(res => res.json())
-      .then(data => {
-        let list = document.getElementById('cards-list');
-        data.forEach(c => {
-          let li = document.createElement('li');
-          li.innerHTML = `<a href="cards/${c.file}" target="_blank">${c.name || c.file}</a>`;
-          list.appendChild(li);
-        });
-      })
-      .catch(err => {
-        console.error('Error loading cards.json:', err);
-      });
-  </script>
+<h2>My Cards</h2>
+<div class="tab" id="tabContainer"></div>
+<div id="contentContainer"></div>
+
+<script>
+// Dynamic cards data from your auto-entry system
+// Replace this array with your system-generated cards array
+const cards = window.dynamicCards || []; // system should populate window.dynamicCards
+
+const tabContainer = document.getElementById("tabContainer");
+const contentContainer = document.getElementById("contentContainer");
+
+function openCard(evt, cardId) {
+  const tabcontent = document.getElementsByClassName("tabcontent");
+  const tablinks = document.getElementsByClassName("tablinks");
+  for (let i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
+  for (let i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
+  document.getElementById(cardId).style.display = "block";
+  evt.currentTarget.classList.add("active");
+}
+
+// Dynamically create tabs and card content
+function renderCards() {
+  tabContainer.innerHTML = "";
+  contentContainer.innerHTML = "";
+  cards.forEach((card, index) => {
+    const btn = document.createElement("button");
+    btn.className = "tablinks";
+    btn.textContent = card.name || `Card ${index+1}`;
+    btn.onclick = (e) => openCard(e, card.name);
+    tabContainer.appendChild(btn);
+
+    const div = document.createElement("div");
+    div.id = card.name;
+    div.className = "tabcontent";
+    div.innerHTML = card.content; // should contain full HTML for card
+    contentContainer.appendChild(div);
+
+    if(index === 0) btn.click(); // open first tab by default
+  });
+}
+
+// Initial render
+renderCards();
+
+// Optional: if system adds new cards dynamically, you can call renderCards() again
+</script>
+
 </body>
 </html>
