@@ -80,23 +80,8 @@
 <div class="tab" id="tabContainer"></div>
 <div id="contentContainer"></div>
 
-<!-- Auto-entry script should populate window.dynamicCards -->
-<script src="./cards/cards.json"></script>
-<script src="./script.js"></script>
-
 <script>
-// ======= GRID VIEW =======
 const list = document.getElementById("card-list");
-if(window.dynamicCards && window.dynamicCards.length){
-  window.dynamicCards.forEach(card => {
-    const div = document.createElement("div");
-    div.className = "card-box";
-    div.innerHTML = `<a href="${card.link}" target="_blank">${card.name}</a>`;
-    list.appendChild(div);
-  });
-}
-
-// ======= TAB VIEW =======
 const tabContainer = document.getElementById("tabContainer");
 const contentContainer = document.getElementById("contentContainer");
 
@@ -110,21 +95,21 @@ function openCard(evt, cardId) {
   evt.currentTarget.classList.add("active");
 }
 
-function renderTabs() {
+function renderTabs(cards) {
   tabContainer.innerHTML = "";
   contentContainer.innerHTML = "";
-  if(window.dynamicCards && window.dynamicCards.length){
-    window.dynamicCards.forEach((card, index) => {
+  if(cards && cards.length){
+    cards.forEach((card, index) => {
       const btn = document.createElement("button");
       btn.className = "tablinks";
-      btn.textContent = card.name;
-      btn.onclick = (e) => openCard(e, card.name);
+      btn.textContent = card.file;
+      btn.onclick = (e) => openCard(e, card.file);
       tabContainer.appendChild(btn);
 
       const div = document.createElement("div");
-      div.id = card.name;
+      div.id = card.file;
       div.className = "tabcontent";
-      div.innerHTML = card.content;
+      div.innerHTML = `<iframe src="cards/${card.file}" width="100%" height="300" style="border:none;"></iframe>`;
       contentContainer.appendChild(div);
 
       if(index === 0) btn.click(); // first tab open by default
@@ -132,8 +117,22 @@ function renderTabs() {
   }
 }
 
-// Enable tab view
-renderTabs();
+// ==== FETCH JSON ====
+fetch('./cards/cards.json')
+  .then(res => res.json())
+  .then(data => {
+    // GRID VIEW
+    data.forEach(card => {
+      const div = document.createElement("div");
+      div.className = "card-box";
+      div.innerHTML = `<a href="cards/${card.file}" target="_blank">${card.file}</a>`;
+      list.appendChild(div);
+    });
+
+    // TAB VIEW
+    renderTabs(data);
+  })
+  .catch(err => console.error('JSON fetch error:', err));
 </script>
 
 </body>
